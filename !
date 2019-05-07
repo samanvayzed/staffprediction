@@ -1,0 +1,77 @@
+#!/anaconda3/bin/python3
+
+import datetime
+import time
+import pandas as pd
+import os
+import sys
+import numpy as np 
+
+pd.set_option('display.max_rows', 2000)
+#eid,epochtime,sales
+
+df = pd.read_csv('data.csv', names=['eid', 'epochtime','sales'])
+
+df = df.iloc[1:]
+#print(df)
+
+
+categoricals = ['eid']
+
+
+x_ohe = pd.get_dummies(df, columns=categoricals, dummy_na=True)
+
+
+#print(x_ohe)
+
+
+# Linear Regression classifier
+
+
+from sklearn.linear_model import LinearRegression
+
+dependent_variable = 'sales'
+
+X = x_ohe[x_ohe.columns.difference([dependent_variable])]
+y = x_ohe[dependent_variable]
+
+model = LinearRegression()
+
+#print(X)
+
+#print(y)
+
+model.fit(X, y)
+
+P = np.array([[1556859397,1,0,0,0,0],[1556859399,1,0,0,0,0],[1556859394,1,0,0,0,0],[1556859393,1,0,0,0,0]])
+print(model.predict(P))
+
+sys.exit()
+
+#a = [[33,1546108200.0]]
+#print(model.predict(a))
+print("Hi")
+
+# Save your model
+
+from sklearn.externals import joblib
+joblib.dump(model, 'model.pkl')
+print("Model dumped!")
+sys.exit()
+
+
+# Load the model that you just saved
+#lr = joblib.load('model.pkl')
+#a =[33,1546108200.0]
+
+#pred_test=np.array([[33,1546108200.0]])
+#test_res=lr.predict(pred_test).astype('int64')
+
+#print(lr.predict(a))
+
+#sys.exit()
+# Saving the data columns from training
+#model_columns = list(X.columns)
+#print(model_columns)
+#joblib.dump(model_columns, 'model_columns.pkl')
+#print("Models columns dumped!")

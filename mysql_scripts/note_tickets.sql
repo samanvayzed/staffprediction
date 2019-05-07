@@ -1,0 +1,1 @@
+select note_tickets.employee_id,customer_histories.date, note_tickets.ticket_amount from customer_histories,note_tickets where customer_histories.id = note_tickets.customer_history_id and note_tickets.user_id=102 and note_tickets.employee_id IN (49,74,55,110); 

@@ -1,0 +1,79 @@
+#!/anaconda3/bin/python3
+import datetime
+import time
+import pandas as pd
+import os
+import sys 
+import numpy as np
+
+pd.set_option('display.max_rows', 2000)
+
+#my_date_str = "2016-05-01"
+#dt = datetime.datetime.strptime(my_date_str, "%Y-%m-%d")
+#print(dt)
+
+#unix_time = time.mktime(dt.timetuple())
+
+products = pd.read_csv('/Users/samanvay/zed/sales_pred/mysql_data/note_products.csv', names=['eid', 'date','sales'], na_values=" NaN")
+products = products.iloc[1:]
+#print(products)
+
+tickets = pd.read_csv('/Users/samanvay/zed/sales_pred/mysql_data/note_tickets.csv', names=['eid', 'date','sales'],na_values=" NaN")
+tickets = tickets.iloc[1:]
+#print(tickets)
+
+services = pd.read_csv('/Users/samanvay/zed/sales_pred/mysql_data/note_services.csv', names=['eid', 'date','sales'],na_values=" NaN")
+services = services.iloc[1:]
+#print(services)
+
+df_temp = pd.concat([products,tickets],ignore_index=True)
+df = pd.concat([df_temp,services],ignore_index=True)
+df.sort_values(by=['eid','date'])
+
+#df.sales = df.sales.astype(int)
+df = df.dropna()
+df = df.reset_index()
+#print(df)
+
+
+
+#print(df.dtypes)
+df['date'] = pd.to_datetime(df['date'])
+#print(df.dtypes)
+
+df['year'] = df['date'].dt.year
+df['month'] = df['date'].dt.month
+df = df[['eid', 'month', 'year', 'sales', 'date']]
+
+#print(df)
+#df.sales = df.sales.astype(int)
+df = df.groupby(['eid','month','year'])['sales'].sum()
+print(df)
+
+sys.exit()
+
+df['date'] = df['date'].astype(str)
+
+epoch_time = []
+
+for row in products['Date']:
+        dt = datetime.datetime.strptime(row, "%Y-%m-%d")
+        #print(dt)
+        unix_time = time.mktime(dt.timetuple())
+        epoch_time.append(unix_time)
+
+products['Epoch Time'] = epoch_time
+
+#print(products)
+
+feature_cols = ['User ID', 'Epoch Time', 'Sales']
+
+ 
+
+x = products.loc[:, feature_cols]
+
+#print(x)
+
+x.to_csv('data.csv', encoding='utf-8', index=False)
+
+
